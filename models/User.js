@@ -26,9 +26,27 @@ const userSchema = mongoose.Schema({
   role: {
     type: String,
     default: 10
-  }
+  },
+  cart: {
+    type: Array,
+    default: []
+  },
+  address: [
+    {
+      type: mongoose.Types.ObjectId,
+      ref: 'Address'
+    }
+  ],
+  wishList: [
+    {
+      type: mongoose.Types.ObjectId,
+      ref: 'Product'
+    }
+  ]
+}, {
+  timestamps: true
 });
 
 const User = mongoose.model('User', userSchema);
 
-export default User; 
+export default User;  

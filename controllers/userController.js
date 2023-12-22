@@ -3,7 +3,7 @@ import { loginSchema, registerSchema, updateSchema } from '../validations/userVa
 import bcrypt from 'bcrypt';
 import { validateObjectId, generateToken  } from '../helpers/index.js';
 
-const login = async (req, res) => {
+const loginUser = async (req, res) => {
   const { error, value } = loginSchema.validate(req.body);
 
   if (error) {
@@ -41,7 +41,8 @@ const login = async (req, res) => {
       _id: userExists._id,
       name: `${userExists.firstName} ${userExists.lastName}`,
       email: userExists.email,
-      phoneNumber: userExists.phoneNumber
+      phoneNumber: userExists.phoneNumber,
+      role: userExists.role
     });
 
     return res.status(200).json({
@@ -54,7 +55,7 @@ const login = async (req, res) => {
   }
 }
 
-const register = async (req, res) => {
+const registerUser = async (req, res) => {
   const { error, value } = registerSchema.validate(req.body);
 
   if (error) {
@@ -102,13 +103,14 @@ const register = async (req, res) => {
       _id: result._id,
       name: `${result.firstName} ${result.lastName}`,
       email: result.email,
-      phoneNumber: result.phoneNumber
+      phoneNumber: result.phoneNumber,
+      role: result.role
     });
 
     return res.status(200).json({
       success: true,
       data: result,
-      token
+      token 
     });
   } catch (error) {
     console.log(error);
@@ -257,8 +259,8 @@ const deleteUser = async (req, res) => {
 }
 
 export {
-  login,
-  register,
+  loginUser,
+  registerUser,
   getAllUsers,
   getUser,
   updateUser,
