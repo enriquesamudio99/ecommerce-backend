@@ -5,7 +5,7 @@ const validateObjectId = (id) => {
   return mongoose.Types.ObjectId.isValid(id);
 }
 
-const generateToken = (data) => {
+const generateRefreshToken = (data) => {
   return jwt.sign(
     data, 
     process.env.SECRET_WORD,
@@ -15,7 +15,18 @@ const generateToken = (data) => {
   );
 }
 
+const generateToken = (data) => {
+  return jwt.sign(
+    data, 
+    process.env.SECRET_WORD,
+    {
+      expiresIn: '12h'
+    }
+  );
+}
+
 export {
-  generateToken, 
-  validateObjectId
+  validateObjectId,
+  generateRefreshToken,
+  generateToken
 }

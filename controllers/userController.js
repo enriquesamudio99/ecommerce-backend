@@ -1,7 +1,8 @@
 import User from '../models/User.js';
 import { loginSchema, registerSchema, updateSchema } from '../validations/userValidation.js';
 import bcrypt from 'bcrypt';
-import { validateObjectId, generateToken  } from '../helpers/index.js';
+import jwt from 'jsonwebtoken';
+import { validateObjectId, generateRefreshToken, generateToken  } from '../helpers/index.js';
 
 const loginUser = async (req, res) => {
   const { error, value } = loginSchema.validate(req.body);
@@ -34,6 +35,21 @@ const loginUser = async (req, res) => {
       });
     }
 
+    const refreshToken = generateRefreshToken({
+      _id: userExists._id,
+      name: `${userExists.firstName} ${userExists.lastName}`,
+      email: userExists.email,
+      phoneNumber: userExists.phoneNumber,
+      role: userExists.role
+    });
+
+    await User.findByIdAndUpdate(userExists._id, { refreshToken }, { new: true });
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      maxAge: 72 * 60 * 60 * 1000
+    });
+
     userExists.password = undefined;
 
     // JWT
@@ -47,7 +63,6 @@ const loginUser = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      data: userExists,
       token
     });
   } catch (error) {
@@ -117,9 +132,59 @@ const registerUser = async (req, res) => {
   }
 }
 
+const handleRefreshToken = async (req, res) => {
+  const cookies = req.cookies;
+
+  if (!cookies?.refreshToken) {
+    return res.status(404).json({
+      success: false,
+      error: 'No refresh token.'
+    });
+  }
+
+  const refreshToken = cookies?.refreshToken;
+
+  const userWithToken = await User.findOne({ refreshToken });
+
+  if (!userWithToken) {
+    return res.status(404).json({
+      success: false,
+      error: 'Token not found.'
+    });
+  }
+ 
+  try {
+    
+    const decodedData = jwt.verify(refreshToken, process.env.SECRET_WORD);
+
+    if (!userWithToken._id.equals(decodedData._id)) {
+      return res.status(401).json({
+        error: 'Something wrong.'
+      });
+    }
+
+    const accessToken = generateToken({
+      _id: userWithToken._id,
+      name: `${userWithToken.firstName} ${userWithToken.lastName}`,
+      email: userWithToken.email,
+      phoneNumber: userWithToken.phoneNumber,
+      role: userWithToken.role
+    });
+
+    res.json({
+      accessToken
+    });
+
+  } catch (error) {
+    return res.status(401).json({
+      error: 'Invalid token.'
+    });
+  }
+}
+
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select({ password: 0 });
+    const users = await User.find().select({ password: 0, role: 0 });
 
     res.json({
       success: true,
@@ -144,7 +209,7 @@ const getUser = async (req, res) => {
   }
 
   try {
-    const user = await User.findById(id).select({ password: 0 });
+    const user = await User.findById(id).select({ password: 0, role: 0 });
 
     if (!user) {  
       return res.status(404).json({
@@ -258,11 +323,96 @@ const deleteUser = async (req, res) => {
   }
 }
 
+const blockUser = async (req, res) => {
+  const { id } = req.params;
+
+  const isValidId = validateObjectId(id);
+  
+  if (!isValidId) {  
+    return res.status(404).json({
+      success: false,
+      error: 'Invalid object id.'
+    });
+  }
+
+  try {
+    const user = await User.findById(id);
+
+    if (!user) {  
+      return res.status(404).json({
+        success: false,
+        error: 'User not found.'
+      });
+    }
+
+    if (user.isBlocked) {  
+      return res.status(404).json({
+        success: false,
+        error: 'This user is already blocked.'
+      });
+    }
+
+    await User.findByIdAndUpdate(id, { ...user._doc, isBlocked: true }, { new: true });
+
+    res.json({
+      success: true,
+      message: 'User blocked successfully.'
+    });
+
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+const unblockUser = async (req, res) => {
+  const { id } = req.params;
+
+  const isValidId = validateObjectId(id);
+  
+  if (!isValidId) {  
+    return res.status(404).json({
+      success: false,
+      error: 'Invalid object id.'
+    });
+  }
+
+  try {
+    const user = await User.findById(id);
+
+    if (!user) {  
+      return res.status(404).json({
+        success: false,
+        error: 'User not found.'
+      });
+    }
+
+    if (!user.isBlocked) {  
+      return res.status(404).json({
+        success: false,
+        error: 'This user is already unblocked.'
+      });
+    }
+
+    await User.findByIdAndUpdate(id, { ...user._doc, isBlocked: false }, { new: true });
+
+    res.json({
+      success: true,
+      message: 'User unblocked successfully.'
+    });
+
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 export {
   loginUser,
   registerUser,
+  handleRefreshToken,
   getAllUsers,
   getUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  blockUser,
+  unblockUser
 }

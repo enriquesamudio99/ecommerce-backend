@@ -24,25 +24,29 @@ const userSchema = mongoose.Schema({
     required: true
   },
   role: {
-    type: String,
+    type: Number,
     default: 10
   },
   cart: {
     type: Array,
     default: []
   },
-  address: [
-    {
-      type: mongoose.Types.ObjectId,
-      ref: 'Address'
-    }
-  ],
+  address: {
+    type: String
+  },
   wishList: [
     {
       type: mongoose.Types.ObjectId,
       ref: 'Product'
     }
-  ]
+  ],
+  isBlocked: {
+    type: Boolean,
+    default: false
+  },
+  refreshToken: {
+    type: String
+  }
 }, {
   timestamps: true
 });
