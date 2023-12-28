@@ -53,7 +53,7 @@ const loginUser = async (req, res) => {
     userExists.password = undefined;
 
     // JWT
-    const token = generateToken({
+    const accessToken = generateToken({
       _id: userExists._id,
       name: `${userExists.firstName} ${userExists.lastName}`,
       email: userExists.email,
@@ -63,7 +63,7 @@ const loginUser = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      token
+      token: accessToken
     });
   } catch (error) {
     console.log(error);
@@ -114,7 +114,7 @@ const registerUser = async (req, res) => {
     result.password = undefined;
 
     // JWT
-    const token = generateToken({
+    const accessToken = generateToken({
       _id: result._id,
       name: `${result.firstName} ${result.lastName}`,
       email: result.email,
@@ -124,8 +124,7 @@ const registerUser = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      data: result,
-      token 
+      token: accessToken
     });
   } catch (error) {
     console.log(error);
@@ -172,13 +171,53 @@ const handleRefreshToken = async (req, res) => {
     });
 
     res.json({
-      accessToken
+      success: true,
+      token: accessToken
     });
 
   } catch (error) {
     return res.status(401).json({
       error: 'Invalid token.'
     });
+  }
+}
+
+const logoutUser = async (req, res) => {
+  const cookies = req.cookies;
+
+  if (!cookies?.refreshToken) {
+    return res.status(404).json({
+      success: false,
+      error: 'No refresh token.'
+    });
+  }
+
+  const refreshToken = cookies?.refreshToken;
+
+  const userWithToken = await User.findOne({ refreshToken });
+
+  if (!userWithToken) {
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: true
+    });
+
+    return res.sendStatus(204);
+  }
+
+  try {
+
+    await User.findOneAndUpdate({ refreshToken }, { refreshToken: "" });
+
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: true
+    });
+
+    return res.sendStatus(204);
+    
+  } catch (error) {
+    console.log(error);
   }
 }
 
@@ -409,6 +448,7 @@ export {
   loginUser,
   registerUser,
   handleRefreshToken,
+  logoutUser,
   getAllUsers,
   getUser,
   updateUser,
