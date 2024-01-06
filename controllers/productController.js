@@ -5,23 +5,27 @@ import { generateSlug, validateObjectId } from '../helpers/index.js';
 const getProducts = async (req, res) => {
 
   // Get sort and fields for query
-  const { sort, fields } = req.query;
+  const { searchTerm, sort, fields, limit } = req.query;
 
   // Products Query
   let productsQuery = Product;
 
   // Pagination
   const page = Number(req.query.page) || 1;
-  const LIMIT = 10;
+  const LIMIT = limit || 10;
   const startIndex = (page - 1) * LIMIT;
 
   // Filtering
   const filtersObj = { ...req.query };
-  const excludeFields = ['page', 'sort', 'limit', 'fields'];
+  const excludeFields = ['page', 'sort', 'limit', 'fields', 'searchTerm'];
   excludeFields.forEach((element) => delete filtersObj[element]);
-  let filters = JSON.stringify(filtersObj);
+  let filters = JSON.stringify(filtersObj); 
   filters = JSON.parse(filters.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`));
- 
+  
+  if (searchTerm) {
+    filters.$or = [{ title: new RegExp(searchTerm, 'i') }, { description: new RegExp(searchTerm, 'i') }]
+  }
+
   // Add filters to query 
   productsQuery = productsQuery.find(filters);
 
@@ -103,6 +107,7 @@ const createProduct = async (req, res) => {
   const { error, value } = productSchema.validate(req.body);
 
   if (error) {
+    console.log(error);
     return res.status(404).json({
       success: false,
       error: 'Something wrong.'
