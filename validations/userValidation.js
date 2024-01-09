@@ -59,8 +59,22 @@ const updateSchema = Joi.object({
     .required()
 });
 
+const updatePasswordSchema = Joi.object({
+  oldPassword: Joi.string()
+    .trim(),
+  password: Joi.string()
+    .trim()
+    .min(8)
+    .required(),
+  confirmPassword: Joi.string()
+    .trim()
+    .valid(Joi.ref('password'))
+    .required()
+});
+
 export {
   loginSchema,
   registerSchema,
-  updateSchema
+  updateSchema,
+  updatePasswordSchema
 }

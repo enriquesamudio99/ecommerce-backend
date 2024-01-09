@@ -17,13 +17,13 @@ const getProducts = async (req, res) => {
 
   // Filtering
   const filtersObj = { ...req.query };
-  const excludeFields = ['page', 'sort', 'limit', 'fields', 'searchTerm'];
+  const excludeFields = ['page', 'sort', 'limit', 'fields', 'searchTerm', 'title', 'description', 'brand'];
   excludeFields.forEach((element) => delete filtersObj[element]);
   let filters = JSON.stringify(filtersObj); 
   filters = JSON.parse(filters.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`));
-  
+
   if (searchTerm) {
-    filters.$or = [{ title: new RegExp(searchTerm, 'i') }, { description: new RegExp(searchTerm, 'i') }]
+    filters.$or = [{ title: new RegExp(searchTerm, 'i') }, { description: new RegExp(searchTerm, 'i') }, { brand: new RegExp(searchTerm, 'i') }]
   }
 
   // Add filters to query 
@@ -96,7 +96,7 @@ const getProduct = async (req, res) => {
     res.json({
       success: true,
       data: product
-    })
+    });
   } catch (error) {
     console.log(error);
   }

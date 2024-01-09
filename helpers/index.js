@@ -6,6 +6,10 @@ const validateObjectId = (id) => {
   return mongoose.Types.ObjectId.isValid(id);
 }
 
+const generateRandomToken = () => {
+  return Math.random().toString(32).substring(2) + Date.now().toString();
+}
+
 const generateRandomId = () => {
   return Math.random().toString(32).substring(2, 10);
 }
@@ -36,6 +40,7 @@ const generateToken = (data) => {
 
 export {
   validateObjectId,
+  generateRandomToken,
   generateRandomId,
   generateSlug,
   generateRefreshToken,

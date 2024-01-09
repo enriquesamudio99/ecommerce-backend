@@ -1,8 +1,9 @@
 import User from '../models/User.js';
-import { loginSchema, registerSchema, updateSchema } from '../validations/userValidation.js';
+import { loginSchema, registerSchema, updateSchema, updatePasswordSchema } from '../validations/userValidation.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { validateObjectId, generateRefreshToken, generateToken  } from '../helpers/index.js';
+import { validateObjectId, generateRefreshToken, generateToken, generateRandomToken  } from '../helpers/index.js';
+import { forgetPasswordEmail } from '../helpers/email.js';
 
 const loginUser = async (req, res) => {
   const { error, value } = loginSchema.validate(req.body);
@@ -443,6 +444,140 @@ const unblockUser = async (req, res) => {
   }
 }
 
+const updateUserPassword = async (req, res) => {
+  const { id } = req.params;
+
+  const isValidId = validateObjectId(id);
+  
+  if (!isValidId) {  
+    return res.status(404).json({
+      success: false,
+      error: 'Invalid object id.'
+    });
+  }
+
+  const { error, value } = updatePasswordSchema.validate(req.body);
+
+  if (error) {
+    return res.status(404).json({
+      success: false,
+      error: 'Something wrong.'
+    });
+  }
+
+  try {
+    const user = await User.findById(id);
+
+    if (!user) {  
+      return res.status(404).json({
+        success: false,
+        error: 'User not found.'
+      });
+    }
+
+    const validatePassword = await bcrypt.compare(value.oldPassword, user.password);
+
+    if (!validatePassword) {
+      return res.status(404).json({
+        success: false,
+        error: 'Invalid old password.'
+      });
+    }
+
+    // Hash Password
+    const salt = bcrypt.genSaltSync(); 
+    user.password = bcrypt.hashSync(value.password, salt);
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Password successfully updated.'
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+const createResetPasswordToken = async (req, res) => {
+
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email }).select('-password');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'There is no user registered with this email.'
+      });
+    }
+
+    user.resetPasswordToken = generateRandomToken();
+    user.resetPasswordExpires = Date.now() + 30 * 60 * 1000;
+
+    await user.save();
+
+    forgetPasswordEmail({
+      name: `${user.firstName} ${user.lastName}`,
+      email: user.email,
+      token: user.resetPasswordToken
+    })
+
+    res.json({
+      success: true,
+      message: 'Check your email for instructions.'
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+const resetUserPassword = async (req, res) => {
+
+  const { token } = req.params;
+
+  const { error, value } = updatePasswordSchema.validate(req.body);
+
+  if (error) {
+    return res.status(404).json({
+      success: false,
+      error: 'Something wrong.'
+    });
+  }
+
+  try {
+    const user = await User.findOne({ 
+      resetPasswordToken: token, 
+      resetPasswordExpires: { $gt: Date.now() } 
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'Invalid token or no user registered with this email address.'
+      });
+    }
+
+    // Hash Password
+    const salt = bcrypt.genSaltSync(); 
+    user.password = bcrypt.hashSync(value.password, salt);
+
+    // Delete token
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Password successfully reset.'
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 export {
   loginUser,
   registerUser,
@@ -453,5 +588,8 @@ export {
   updateUser,
   deleteUser,
   blockUser,
-  unblockUser
+  unblockUser,
+  updateUserPassword,
+  createResetPasswordToken,
+  resetUserPassword 
 }

@@ -9,7 +9,10 @@ import {
   updateUser, 
   deleteUser, 
   blockUser, 
-  unblockUser 
+  unblockUser,
+  updateUserPassword,
+  createResetPasswordToken,
+  resetUserPassword
 } from '../controllers/userController.js';
 import { verifyTokenAndUser, verifyTokenAndAdmin } from '../middlewares/auth.js';
 
@@ -25,5 +28,8 @@ router.patch('/users/:id', verifyTokenAndUser, updateUser);
 router.delete('/users/:id', verifyTokenAndUser, deleteUser);
 router.patch('/users/block/:id', verifyTokenAndAdmin, blockUser);
 router.patch('/users/unblock/:id', verifyTokenAndAdmin, unblockUser);
+router.post('/users/update-password/:id', verifyTokenAndUser, updateUserPassword);
+router.post('/users/forget-password', verifyTokenAndUser, createResetPasswordToken);
+router.put('/users/forget-password/:token', verifyTokenAndUser, resetUserPassword);
 
 export default router;
