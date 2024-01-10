@@ -17,7 +17,10 @@ const getProducts = async (req, res) => {
 
   // Filtering
   const filtersObj = { ...req.query };
-  const excludeFields = ['page', 'sort', 'limit', 'fields', 'searchTerm', 'title', 'description', 'brand'];
+  const excludeFields = 
+    searchTerm 
+      ? ['page', 'sort', 'limit', 'fields', 'searchTerm', 'title', 'description', 'brand'] 
+      : ['page', 'sort', 'limit', 'fields'];
   excludeFields.forEach((element) => delete filtersObj[element]);
   let filters = JSON.stringify(filtersObj); 
   filters = JSON.parse(filters.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`));
@@ -190,7 +193,14 @@ const deleteProduct = async (req, res) => {
   }
 
   try {
-    await Product.findByIdAndDelete(id);
+    const product = await Product.findByIdAndDelete(id);
+
+    if (!product) {  
+      return res.status(404).json({
+        success: false,
+        error: 'Product not found.'
+      });
+    }
 
     res.json({
       success: true,

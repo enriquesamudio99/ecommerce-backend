@@ -7,7 +7,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 // Import Routes 
-import { authRoutes, productsRoutes } from './routes/index.js';
+import { authRoutes, productsRoutes, blogsRoutes } from './routes/index.js';
 
 // Connect to DB
 dbConnection(); 
@@ -23,6 +23,7 @@ app.use(cors());
 // Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/products', productsRoutes);
+app.use('/api/v1/blogs', blogsRoutes);
 
 // Configure port and run the server 
 const PORT = process.env.PORT ?? 3000;
