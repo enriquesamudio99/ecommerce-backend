@@ -8,7 +8,8 @@ const getBlogs = async (req, res) => {
       .populate({
         path: 'author', 
         select: 'firstName lastName'
-      });
+      })
+      .sort('-createdAt');
 
     res.json({
       success: true,
@@ -34,7 +35,7 @@ const getBlog = async (req, res) => {
   
   try {
 
-    const blog = await Blog.findById(id);
+    const blog = await Blog.findByIdAndUpdate(id, { $inc: { numberViews: 1 } }, { new: true });
 
     if (!blog) {
       return res.status(404).json({
@@ -160,8 +161,7 @@ const deleteBlog = async (req, res) => {
 const likeBlog = async (req, res) => {
 
   const { id } = req.params;
-  const { _id } = req.user;
-  const userId = _id;
+  const { _id:userId } = req.user;
 
   const isValidId = validateObjectId(id);
   
@@ -173,7 +173,6 @@ const likeBlog = async (req, res) => {
   }
 
   try {
-      
     const blog = await Blog.findById(id);
 
     if (!blog) {  
@@ -183,29 +182,36 @@ const likeBlog = async (req, res) => {
       });
     }
 
-    // Check if the user has disliked the blog
-    const indexDisliked = blog.dislikes.findIndex((id) => String(id) === String(userId));
-
-    if (indexDisliked !== -1) {
-      blog.dislikes = blog.dislikes.filter((id) => String(id) !== String(userId));
-    }
-
     const index = blog.likes.findIndex((id) => String(id) === String(userId));
 
     if (index === -1) {
-      blog.likes.push(userId);
+      await Blog.findByIdAndUpdate(
+        id, 
+        {
+          $push: { likes: userId },
+          $pull: { dislikes: userId },
+        }, 
+        { new: true }
+      );
+
+      return res.json({
+        success: true,
+        message: 'Blog liked successfully.'
+      });
     } else {
-      blog.likes = blog.likes.filter((id) => String(id) !== String(userId));
+      await Blog.findByIdAndUpdate(
+        id, 
+        {
+          $pull: { likes: userId }
+        }, 
+        { new: true }
+      );
+
+      return res.json({
+        success: true,
+        message: 'Like removed successfully..'
+      });
     }
-
-    const updatedBlog = await Blog.findByIdAndUpdate(id, blog, { new: true });
-
-    res.json({
-      success: true,
-      message: 'Blog liked successfully.',
-      data: updatedBlog
-    });
-
   } catch (error) { 
     console.log(error);
   }
@@ -215,8 +221,7 @@ const likeBlog = async (req, res) => {
 const dislikeBlog = async (req, res) => {
 
   const { id } = req.params;
-  const { _id } = req.user;
-  const userId = _id;
+  const { _id:userId } = req.user;
 
   const isValidId = validateObjectId(id);
   
@@ -228,9 +233,8 @@ const dislikeBlog = async (req, res) => {
   }
 
   try {
-      
     const blog = await Blog.findById(id);
-
+    
     if (!blog) {  
       return res.status(404).json({
         success: false,
@@ -238,29 +242,36 @@ const dislikeBlog = async (req, res) => {
       });
     }
 
-    // Check if the user has disliked the blog
-    const indexLiked = blog.likes.findIndex((id) => String(id) === String(userId));
-
-    if (indexLiked !== -1) {
-      blog.likes = blog.likes.filter((id) => String(id) !== String(userId));
-    }
-
     const index = blog.dislikes.findIndex((id) => String(id) === String(userId));
 
     if (index === -1) {
-      blog.dislikes.push(userId);
+      await Blog.findByIdAndUpdate(
+        id, 
+        {
+          $push: { dislikes: userId },
+          $pull: { likes: userId },
+        }, 
+        { new: true }
+      );
+
+      return res.json({
+        success: true,
+        message: 'Blog disliked successfully.'
+      });
     } else {
-      blog.dislikes = blog.dislikes.filter((id) => String(id) !== String(userId));
+      await Blog.findByIdAndUpdate(
+        id, 
+        {
+          $pull: { dislikes: userId }
+        }, 
+        { new: true }
+      );
+
+      return res.json({
+        success: true,
+        message: 'Dislike removed successfully..'
+      });
     }
-
-    const updatedBlog = await Blog.findByIdAndUpdate(id, blog, { new: true });
-
-    res.json({
-      success: true,
-      message: 'Blog disliked successfully.',
-      data: updatedBlog
-    });
-
   } catch (error) { 
     console.log(error);
   }
