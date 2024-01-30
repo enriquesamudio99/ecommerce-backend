@@ -4,7 +4,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 
 // Import Routes 
-import { authRoutes, productsRoutes, blogsRoutes, categoriesRoutes } from './routes/index.js';
+import { authRoutes, productsRoutes, blogsRoutes, categoriesRoutes, blogCategoriesRoutes } from './routes/index.js';
 
 // Configure app
 const app = express();
@@ -19,5 +19,6 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/products', productsRoutes);
 app.use('/api/v1/blogs', blogsRoutes);
 app.use('/api/v1/categories', categoriesRoutes);
+app.use('/api/v1/blog-categories', blogCategoriesRoutes);
 
 export default app;
