@@ -7,8 +7,8 @@ import {
   deleteBlog,
   likeBlog,
   dislikeBlog
-} from '../controllers/blogController.js';
-import { verifyTokenAndUser, verifyTokenAndAdmin } from '../middlewares/auth.js';
+} from '../controllers/blog.controller.js';
+import { verifyToken, verifyTokenAndAdmin } from '../middlewares/auth.js';
 
 const router = Router();
 
@@ -17,7 +17,7 @@ router.get('/:id', getBlog);
 router.post('/', verifyTokenAndAdmin, createBlog);
 router.patch('/:id', verifyTokenAndAdmin, updateBlog);
 router.delete('/:id', verifyTokenAndAdmin, deleteBlog);
-router.patch('/:id/like', verifyTokenAndUser, likeBlog); 
-router.patch('/:id/dislike', verifyTokenAndUser, dislikeBlog);
+router.patch('/:id/like', verifyToken, likeBlog); 
+router.patch('/:id/dislike', verifyToken, dislikeBlog);
 
 export default router;

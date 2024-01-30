@@ -1,5 +1,5 @@
-import Product from '../models/Product.js';
-import { productSchema } from '../validations/productValidation.js';
+import Product from '../models/product.js';
+import { productSchema } from '../validations/product.validation.js';
 import { generateSlug, validateObjectId } from '../helpers/index.js';
 
 const getProducts = async (req, res) => {
@@ -58,7 +58,7 @@ const getProducts = async (req, res) => {
       });
     }
 
-    productsQuery = productsQuery.limit(LIMIT).skip(startIndex);
+    productsQuery = productsQuery.populate({ path: 'category', select: 'title' }).limit(LIMIT).skip(startIndex);
     const products = await productsQuery;
 
     res.json({

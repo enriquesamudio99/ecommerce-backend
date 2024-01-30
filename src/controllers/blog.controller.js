@@ -1,5 +1,5 @@
-import Blog from '../models/Blog.js';
-import { blogSchema } from '../validations/blogValidation.js';
+import Blog from '../models/blog.js';
+import { blogSchema } from '../validations/blog.validation.js';
 import { validateObjectId } from '../helpers/index.js';
 
 const getBlogs = async (req, res) => {
@@ -35,7 +35,19 @@ const getBlog = async (req, res) => {
   
   try {
 
-    const blog = await Blog.findByIdAndUpdate(id, { $inc: { numberViews: 1 } }, { new: true });
+    const blog = await Blog.findByIdAndUpdate(id, { $inc: { numberViews: 1 } }, { new: true })
+      .populate({
+        path: 'likes', 
+        select: 'firstName lastName'
+      })  
+      .populate({
+        path: 'dislikes', 
+        select: 'firstName lastName'
+      }) 
+      .populate({
+        path: 'author', 
+        select: 'firstName lastName'
+      });
 
     if (!blog) {
       return res.status(404).json({
@@ -61,7 +73,6 @@ const createBlog = async (req, res) => {
   const { error, value } = blogSchema.validate(req.body);
 
   if (error) {
-    console.log(error);
     return res.status(404).json({
       success: false,
       error: 'Something wrong.'
@@ -159,6 +170,8 @@ const deleteBlog = async (req, res) => {
 }
 
 const likeBlog = async (req, res) => {
+
+  console.log(req.user);
 
   const { id } = req.params;
   const { _id:userId } = req.user;

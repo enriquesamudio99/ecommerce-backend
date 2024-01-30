@@ -13,7 +13,7 @@ import {
   updateUserPassword,
   createResetPasswordToken,
   resetUserPassword
-} from '../controllers/userController.js';
+} from '../controllers/user.controller.js';
 import { verifyTokenAndUser, verifyTokenAndAdmin } from '../middlewares/auth.js';
 
 const router = Router();
