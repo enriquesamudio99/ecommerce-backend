@@ -9,6 +9,10 @@ const getBlogs = async (req, res) => {
         path: 'author', 
         select: 'firstName lastName'
       })
+      .populate({
+        path: 'category',
+        select: '-title_lowercase'
+      })
       .sort('-createdAt');
 
     res.json({
@@ -47,6 +51,10 @@ const getBlog = async (req, res) => {
       .populate({
         path: 'author', 
         select: 'firstName lastName'
+      })
+      .populate({
+        path: 'category',
+        select: '-title_lowercase'
       });
 
     if (!blog) {
