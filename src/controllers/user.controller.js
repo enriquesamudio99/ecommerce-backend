@@ -1,4 +1,5 @@
 import User from '../models/user.js';
+import WishList from '../models/wishlist.js';
 import { loginSchema, registerSchema, updateSchema, updatePasswordSchema } from '../validations/user.validation.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -112,6 +113,13 @@ const registerUser = async (req, res) => {
 
     const result = await user.save();
     
+    // Create WishList
+    const wishList = await WishList({
+      user: result.id
+    });
+    
+    await wishList.save();
+
     result.password = undefined;
 
     // JWT

@@ -34,12 +34,6 @@ const userSchema = mongoose.Schema({
   address: {
     type: String
   },
-  wishList: [
-    {
-      type: mongoose.Types.ObjectId,
-      ref: 'Product'
-    }
-  ],
   isBlocked: {
     type: Boolean,
     default: false

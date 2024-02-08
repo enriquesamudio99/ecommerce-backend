@@ -6,6 +6,10 @@ const validateObjectId = (id) => {
   return mongoose.Types.ObjectId.isValid(id);
 }
 
+const verifyIsAdmin = (user) => {
+  return user.role === +process.env.ADMIN_ROLE;
+}
+
 const generateRandomToken = () => {
   return Math.random().toString(32).substring(2) + Date.now().toString();
 }
@@ -40,6 +44,7 @@ const generateToken = (data) => {
 
 export {
   validateObjectId,
+  verifyIsAdmin,
   generateRandomToken,
   generateRandomId,
   generateSlug,

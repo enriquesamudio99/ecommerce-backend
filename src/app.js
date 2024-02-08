@@ -10,7 +10,8 @@ import {
   blogsRoutes, 
   categoriesRoutes, 
   blogCategoriesRoutes,
-  brandsRoutes
+  brandsRoutes,
+  wishListsRoutes
 } from './routes/index.js';
 
 // Configure app
@@ -28,5 +29,6 @@ app.use('/api/v1/blogs', blogsRoutes);
 app.use('/api/v1/categories', categoriesRoutes);
 app.use('/api/v1/blog-categories', blogCategoriesRoutes);
 app.use('/api/v1/brands', brandsRoutes);
+app.use('/api/v1/wishlists', wishListsRoutes);
 
 export default app;
