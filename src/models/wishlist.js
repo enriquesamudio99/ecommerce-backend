@@ -9,7 +9,8 @@ const wishListSchema = mongoose.Schema({
   ],
   user: {
     type: mongoose.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
+    unique: true
   }
 }, {
   timestamps: true

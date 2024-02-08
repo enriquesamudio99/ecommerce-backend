@@ -4,9 +4,11 @@ import {
   getProduct,
   createProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  rateProduct,
+  removeRateFromProduct
 } from '../controllers/product.controller.js';
-import { verifyTokenAndAdmin } from '../middlewares/auth.js';
+import { verifyToken, verifyTokenAndAdmin } from '../middlewares/auth.js';
 
 const router = Router();
 
@@ -15,5 +17,7 @@ router.get('/:id', getProduct);
 router.post('/', verifyTokenAndAdmin, createProduct);
 router.patch('/:id', verifyTokenAndAdmin, updateProduct);
 router.delete('/:id', verifyTokenAndAdmin, deleteProduct);
+router.patch('/:id/rate', verifyToken, rateProduct);
+router.patch('/:id/remove-rate', verifyToken, removeRateFromProduct);
 
 export default router;

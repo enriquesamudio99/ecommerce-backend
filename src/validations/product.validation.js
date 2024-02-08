@@ -27,6 +27,15 @@ const productSchema = Joi.object({
     .required()
 });
 
+const rateProductSchema = Joi.object({
+  star: Joi.number()
+    .min(1)
+    .max(5),
+  comment: Joi.string()
+    .min(10)
+});
+
 export {
-  productSchema
+  productSchema,
+  rateProductSchema
 }

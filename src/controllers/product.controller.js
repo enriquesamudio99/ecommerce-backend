@@ -1,5 +1,5 @@
 import Product from '../models/product.js';
-import { productSchema } from '../validations/product.validation.js';
+import { productSchema, rateProductSchema } from '../validations/product.validation.js';
 import { generateSlug, validateObjectId } from '../helpers/index.js';
 
 const getProducts = async (req, res) => {
@@ -218,10 +218,169 @@ const deleteProduct = async (req, res) => {
   }
 }
 
+const rateProduct = async (req, res) => {
+  const { user } = req;
+  const { id } = req.params;
+
+  const isValidId = validateObjectId(id);
+  
+  if (!isValidId) {  
+    return res.status(404).json({
+      success: false,
+      error: 'Invalid object id.'
+    });
+  }
+
+  const { error, value } = rateProductSchema.validate(req.body);
+
+  if (error) {
+    return res.status(404).json({
+      success: false,
+      error: 'Something wrong.'
+    });
+  } 
+
+  try {
+    
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        error: 'Product not found.'
+      });
+    }
+
+    const alreadyRated = product.ratings.find((rating) => String(rating.postedBy) === String(user._id));
+
+    if (alreadyRated) {
+      await Product.updateOne(
+        {
+          ratings: {
+            $elemMatch: alreadyRated
+          }
+        },
+        {
+          $set: {
+            "ratings.$.star": value.star,
+            "ratings.$.comment": value.comment
+          }
+        },
+        { new: true }
+      );
+    } else {
+      await Product.findByIdAndUpdate(
+        id,
+        {
+          $push: {
+            ratings: {
+              star: value.star,
+              comment: value.comment,
+              postedBy: user._id
+            }
+          }
+        },
+        { new: true }
+      );
+    }
+
+    const allRatings = await Product.findById(id);
+    const numberRatings = allRatings.ratings.length;
+    const ratingsSum = allRatings.ratings
+      .map((rating) => rating.star)
+      .reduce((prev, current) => prev + current, 0);
+    const totalRating = Math.round(ratingsSum / numberRatings) || 0;
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      { totalRating },
+      { new: true }
+    );
+
+    res.json({ 
+      success: true,
+      updatedProduct
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+const removeRateFromProduct = async (req, res) => {
+  const { user } = req;
+  const { id } = req.params;
+
+  const isValidId = validateObjectId(id);
+  
+  if (!isValidId) {  
+    return res.status(404).json({
+      success: false,
+      error: 'Invalid object id.'
+    });
+  }
+
+  try {
+    
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        error: 'Product not found.'
+      });
+    }
+
+    const rate = product.ratings.find((rating) => String(rating.postedBy) === String(user._id));
+
+    if (!rate) {
+      return res.status(404).json({
+        success: false,
+        error: 'Rate not found.'
+      });
+    }
+
+    await Product.updateOne(
+      {
+        ratings: {
+          $elemMatch: rate
+        }
+      },
+      {
+        $pull: {
+          ratings: rate
+        }
+      },
+      { new: true }
+    );
+
+    const allRatings = await Product.findById(id);
+    const numberRatings = allRatings.ratings.length;
+    const ratingsSum = allRatings.ratings
+      .map((rating) => rating.star)
+      .reduce((prev, current) => prev + current, 0);
+    const totalRating = Math.round(ratingsSum / numberRatings) || 0;
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      { totalRating },
+      { new: true }
+    );
+
+    res.json({
+      success: true,
+      updatedProduct
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 export {
   getProducts,
   getProduct,
   createProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  rateProduct,
+  removeRateFromProduct
 }
