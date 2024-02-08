@@ -28,7 +28,6 @@ const getCategory = async (req, res) => {
   }
   
   try {
-
     const category = await Category.findById(id).select('-title_lowercase');
 
     if (!category) {

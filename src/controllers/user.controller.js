@@ -358,7 +358,19 @@ const deleteUser = async (req, res) => {
  
   try {
     
-    await User.findByIdAndDelete(id);
+    const user = await User.findByIdAndDelete(id);
+
+    if (!user) {  
+      return res.status(404).json({
+        success: false,
+        error: 'User not found.'
+      });
+    }
+
+    // Delete WishList
+    await WishList.findOneAndDelete(
+      { user: user._id }
+    );
 
     res.json({
       success: true,
