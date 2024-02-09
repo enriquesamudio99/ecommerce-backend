@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { USER_ROLE } from '../config/env.js';
 
 const userSchema = mongoose.Schema({
   firstName: {
@@ -25,7 +26,7 @@ const userSchema = mongoose.Schema({
   },
   role: {
     type: Number,
-    default: 10
+    default: USER_ROLE
   },
   cart: {
     type: Array,

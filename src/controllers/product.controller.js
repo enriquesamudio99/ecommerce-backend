@@ -1,6 +1,8 @@
 import Product from '../models/product.js';
 import { productSchema, rateProductSchema } from '../validations/product.validation.js';
 import { generateSlug, validateObjectId } from '../helpers/index.js';
+import uploadImages from '../helpers/uploadImages.js';
+import deleteImages from '../helpers/deleteImages.js';
 
 const getProducts = async (req, res) => {
 
@@ -114,10 +116,16 @@ const getProduct = async (req, res) => {
 
 const createProduct = async (req, res) => {
 
+  if (!req.files || req.files.length === 0) {
+    return res.json({
+      success: false,  
+      message: 'You must upload at least one image'
+    })
+  };
+
   const { error, value } = productSchema.validate(req.body);
 
   if (error) {
-    console.log(error);
     return res.status(404).json({
       success: false,
       error: 'Something wrong.'
@@ -125,8 +133,11 @@ const createProduct = async (req, res) => {
   } 
 
   try {
+    const images = await uploadImages(req.files);
+
     const product = new Product(value);
     product.slug = generateSlug(product.title);
+    product.images = images;
 
     const result = await product.save();
 
@@ -200,7 +211,7 @@ const deleteProduct = async (req, res) => {
   }
 
   try {
-    const product = await Product.findByIdAndDelete(id);
+    const product = await Product.findById(id);
 
     if (!product) {  
       return res.status(404).json({
@@ -208,6 +219,9 @@ const deleteProduct = async (req, res) => {
         error: 'Product not found.'
       });
     }
+
+    await deleteImages(product.images);
+    await product.deleteOne();
 
     res.json({
       success: true,

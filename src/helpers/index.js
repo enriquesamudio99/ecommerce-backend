@@ -1,13 +1,14 @@
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import slugify from 'slugify';
+import { ADMIN_ROLE } from '../config/env.js';
 
 const validateObjectId = (id) => {
   return mongoose.Types.ObjectId.isValid(id);
 }
 
 const verifyIsAdmin = (user) => {
-  return user.role === +process.env.ADMIN_ROLE;
+  return user.role === ADMIN_ROLE;
 }
 
 const generateRandomToken = () => {

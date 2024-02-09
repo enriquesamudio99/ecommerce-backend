@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { ADMIN_ROLE } from '../config/env.js';
 
 const verifyToken = async (req, res, next) => {
   try {
@@ -29,7 +30,7 @@ const verifyToken = async (req, res, next) => {
 
 const verifyTokenAndUser = (req, res, next) => {
   verifyToken(req, res, () => {
-    if (req.user._id === req.params.id || req.user.role === +process.env.ADMIN_ROLE) {
+    if (req.user._id === req.params.id || req.user.role === ADMIN_ROLE) {
       next();
     } else {
       res.status(403).json({
@@ -41,7 +42,7 @@ const verifyTokenAndUser = (req, res, next) => {
 
 const verifyTokenAndAdmin = (req, res, next) => {
   verifyToken(req, res, () => {
-    if (req.user.role === +process.env.ADMIN_ROLE) {
+    if (req.user.role === ADMIN_ROLE) {
       next();
     } else {
       res.status(403).json({

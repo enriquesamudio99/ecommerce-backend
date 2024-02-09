@@ -24,7 +24,7 @@ const productSchema = Joi.object({
   color: Joi.string()
     .trim()
     .min(3)
-    .required()
+    .required() 
 });
 
 const rateProductSchema = Joi.object({
