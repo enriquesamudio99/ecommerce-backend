@@ -12,7 +12,8 @@ import {
   blogCategoriesRoutes,
   brandsRoutes,
   wishListsRoutes,
-  couponsRoutes
+  couponsRoutes,
+  uploadsRoutes
 } from './routes/index.js';
 
 // Configure app
@@ -32,5 +33,6 @@ app.use('/api/v1/blog-categories', blogCategoriesRoutes);
 app.use('/api/v1/brands', brandsRoutes);
 app.use('/api/v1/wishlists', wishListsRoutes);
 app.use('/api/v1/coupons', couponsRoutes);
+app.use('/api/v1/uploads', uploadsRoutes);
 
 export default app;

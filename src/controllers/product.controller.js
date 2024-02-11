@@ -1,7 +1,6 @@
 import Product from '../models/product.js';
 import { productSchema, rateProductSchema } from '../validations/product.validation.js';
 import { generateSlug, validateObjectId } from '../helpers/index.js';
-import uploadImages from '../helpers/uploadImages.js';
 import deleteImages from '../helpers/deleteImages.js';
 
 const getProducts = async (req, res) => {
@@ -115,14 +114,6 @@ const getProduct = async (req, res) => {
 }
 
 const createProduct = async (req, res) => {
-
-  if (!req.files || req.files.length === 0) {
-    return res.json({
-      success: false,  
-      message: 'You must upload at least one image'
-    })
-  };
-
   const { error, value } = productSchema.validate(req.body);
 
   if (error) {
@@ -133,11 +124,8 @@ const createProduct = async (req, res) => {
   } 
 
   try {
-    const images = await uploadImages(req.files);
-
     const product = new Product(value);
     product.slug = generateSlug(product.title);
-    product.images = images;
 
     const result = await product.save();
 
@@ -195,7 +183,7 @@ const updateProduct = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-  } 
+  }
 }
 
 const deleteProduct = async (req, res) => {
