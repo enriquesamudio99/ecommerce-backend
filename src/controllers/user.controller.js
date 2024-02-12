@@ -1,6 +1,7 @@
 import User from '../models/user.js';
 import WishList from '../models/wishlist.js';
-import { loginSchema, registerSchema, updateSchema, updatePasswordSchema } from '../validations/user.validation.js';
+import Cart from '../models/cart.js';
+import { loginSchema, registerSchema, updateSchema, updatePasswordSchema, updateAddressSchema } from '../validations/user.validation.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { validateObjectId, generateRefreshToken, generateToken, generateRandomToken  } from '../helpers/index.js';
@@ -113,12 +114,17 @@ const registerUser = async (req, res) => {
 
     const result = await user.save();
     
-    // Create WishList
+    // Create WishList and Cart
     const wishList = await WishList({
+      user: result.id
+    });
+
+    const cart = await Cart({
       user: result.id
     });
     
     await wishList.save();
+    await cart.save();
 
     result.password = undefined;
 
@@ -598,6 +604,54 @@ const resetUserPassword = async (req, res) => {
   }
 }
 
+const updateUserAddress = async (req, res) => {
+  const { id } = req.params;
+
+  const isValidId = validateObjectId(id);
+  
+  if (!isValidId) {  
+    return res.status(404).json({
+      success: false,
+      error: 'Invalid object id.'
+    });
+  }
+
+  const { error, value } = updateAddressSchema.validate(req.body);
+
+  if (error) {
+    return res.status(404).json({
+      success: false,
+      error: 'Something wrong.'
+    });
+  }
+
+  try {
+    const user = await User.findById(id);
+
+    if (!user) {  
+      return res.status(404).json({
+        success: false,
+        error: 'User not found.'
+      });
+    }
+
+    await User.findByIdAndUpdate(
+      id,
+      {
+        address: value.address
+      },
+      { new: true }
+    );
+
+    res.json({
+      success: true,
+      message: 'Address successfully updated.'
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 export {
   loginUser,
   registerUser,
@@ -611,5 +665,6 @@ export {
   unblockUser,
   updateUserPassword,
   createResetPasswordToken,
-  resetUserPassword 
+  resetUserPassword,
+  updateUserAddress
 }

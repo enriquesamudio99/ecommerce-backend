@@ -12,7 +12,8 @@ import {
   unblockUser,
   updateUserPassword,
   createResetPasswordToken,
-  resetUserPassword
+  resetUserPassword,
+  updateUserAddress
 } from '../controllers/user.controller.js';
 import { verifyTokenAndUser, verifyTokenAndAdmin } from '../middlewares/auth.js';
 
@@ -29,7 +30,8 @@ router.delete('/users/:id', verifyTokenAndUser, deleteUser);
 router.patch('/users/block/:id', verifyTokenAndAdmin, blockUser);
 router.patch('/users/unblock/:id', verifyTokenAndAdmin, unblockUser);
 router.post('/users/update-password/:id', verifyTokenAndUser, updateUserPassword);
-router.post('/users/forget-password', verifyTokenAndUser, createResetPasswordToken);
-router.put('/users/forget-password/:token', verifyTokenAndUser, resetUserPassword);
+router.post('/users/forget-password', createResetPasswordToken);
+router.put('/users/forget-password/:token', resetUserPassword);
+router.post('/users/update-address/:id', verifyTokenAndUser, updateUserAddress);
 
 export default router;

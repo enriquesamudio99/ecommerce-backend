@@ -2,7 +2,6 @@ import WishList from '../models/wishlist.js';
 import { validateObjectId, verifyIsAdmin } from '../helpers/index.js';
 
 const getMyWishList = async (req, res) => {
-
   const { user } = req;
 
   try {
@@ -16,13 +15,6 @@ const getMyWishList = async (req, res) => {
       return res.status(404).json({
         success: false,
         error: 'WishList not found.'
-      });
-    }
-
-    if (user._id !== wishList.user.toString()) {
-      return res.status(403).json({
-        success: false,
-        error: 'Unauthorized.'
       });
     }
 
@@ -215,9 +207,9 @@ const removeProductFromWishList = async (req, res) => {
 }
 
 export {
+  getMyWishList,
   getWishLists,
   getWishList,
-  getMyWishList,
   addProductToWishList,
   removeProductFromWishList
 }

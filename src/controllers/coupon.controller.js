@@ -74,7 +74,7 @@ const createCoupon = async (req, res) => {
     }
 
     const coupon = new Coupon(value);
-    coupon.expiry = "2024-02-12T18:30:15.735Z";
+    coupon.expiry = "2024-02-20T18:30:15.735Z";
 
     const result = await coupon.save();
 
