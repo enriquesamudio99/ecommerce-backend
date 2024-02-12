@@ -21,8 +21,7 @@ const productSchema = Joi.object({
     .required(),
   quantity: Joi.number()
     .min(0),
-  colors: Joi.array()
-    .required(),
+  colors: Joi.array(),
   tags: Joi.array()
 });
 
