@@ -1,9 +1,10 @@
 const CART_ITEM_STATUS = {
-  PROCESSING: 'Processing',
-  SHIPPED: 'Shipped',
-  DELIVERED: 'Delivered',
   CANCELLED: 'Cancelled',
-  NOT_PROCESSED: 'Not Processed'
+  CASH_ON_DELIVERY: 'Cash on Delivery',
+  DELIVERED: 'Delivered',
+  DISPATCHED: 'Dispatched',
+  NOT_PROCESSED: 'Not Processed',
+  PROCESSING: 'Processing'
 };
 
 export {

@@ -45,14 +45,16 @@ const updateCart = async (req, res) => {
     }
 
     for (let i = 0; i < cartArr.length; i++) {
+      let productDoc = await Product.findById(cartArr[i]._id).select("price").exec();
+      if (!productDoc) return;
       let productObj = {};
       productObj.product = cartArr[i]._id;
       productObj.quantity = cartArr[i].quantity;
       productObj.color = cartArr[i].color;
-      let getPrice = await Product.findById(cartArr[i]._id).select("price").exec();
-      productObj.price = getPrice.price;
+      productObj.price = productDoc.price;
       products.push(productObj);
     }
+
     let totalPrice = 0;
     for (let i = 0; i < products.length; i++) {
       totalPrice = totalPrice + products[i].price * products[i].quantity;
