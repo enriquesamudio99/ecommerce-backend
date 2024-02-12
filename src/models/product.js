@@ -43,9 +43,14 @@ const productSchema = mongoose.Schema({
       secure_url: String
     }
   ],
-  color: {
-    type: String,
-    required: true
+  colors: [
+    {
+      type: mongoose.Types.ObjectId,
+      ref: 'Color'
+    }
+  ],
+  tags: {
+    type: Array
   },
   ratings: [
     {

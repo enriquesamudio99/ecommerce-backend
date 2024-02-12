@@ -9,3 +9,4 @@ export { default as couponsRoutes } from './coupons.routes.js';
 export { default as uploadsRoutes } from './uploads.routes.js';
 export { default as ordersRoutes } from './orders.routes.js';
 export { default as cartsRoutes } from './carts.routes.js';
+export { default as colorsRoutes } from './colors.routes.js';

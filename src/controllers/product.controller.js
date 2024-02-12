@@ -62,6 +62,8 @@ const getProducts = async (req, res) => {
     productsQuery = productsQuery
       .populate({ path: 'category', select: 'title' })
       .populate({ path: 'brand', select: 'title' })
+      .populate({ path: 'colors', select: 'title' })
+      .populate({ path: 'ratings.postedBy', select: 'firstName lastName' })
       .limit(LIMIT)
       .skip(startIndex);
     
@@ -95,7 +97,9 @@ const getProduct = async (req, res) => {
 
     const product = await Product.findById(id)
       .populate({ path: 'category', select: 'title' })
-      .populate({ path: 'brand', select: 'title' });
+      .populate({ path: 'brand', select: 'title' })
+      .populate({ path: 'colors', select: 'title' })
+      .populate({ path: 'ratings.postedBy', select: 'firstName lastName' });
 
     if (!product) {
       return res.status(404).json({

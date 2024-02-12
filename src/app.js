@@ -15,7 +15,8 @@ import {
   couponsRoutes,
   uploadsRoutes,
   ordersRoutes,
-  cartsRoutes
+  cartsRoutes,
+  colorsRoutes
 } from './routes/index.js';
 
 // Configure app
@@ -38,5 +39,6 @@ app.use('/api/v1/coupons', couponsRoutes);
 app.use('/api/v1/uploads', uploadsRoutes);
 app.use('/api/v1/orders', ordersRoutes);
 app.use('/api/v1/carts', cartsRoutes);
+app.use('/api/v1/colors', colorsRoutes);
 
 export default app;
