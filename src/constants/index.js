@@ -7,6 +7,15 @@ const CART_ITEM_STATUS = {
   PROCESSING: 'Processing'
 };
 
+const INQUIRY_STATUS = {
+  SUBMITTED: 'Submitted',
+  CONTACTED: 'Contacted',
+  IN_PROGRESS: 'In Progress',
+  RESOLVED: 'Resolved'
+};
+
+
 export {
-  CART_ITEM_STATUS
+  CART_ITEM_STATUS,
+  INQUIRY_STATUS
 }

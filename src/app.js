@@ -16,7 +16,8 @@ import {
   uploadsRoutes,
   ordersRoutes,
   cartsRoutes,
-  colorsRoutes
+  colorsRoutes,
+  inquiriesRoutes
 } from './routes/index.js';
 
 // Configure app
@@ -40,5 +41,6 @@ app.use('/api/v1/uploads', uploadsRoutes);
 app.use('/api/v1/orders', ordersRoutes);
 app.use('/api/v1/carts', cartsRoutes);
 app.use('/api/v1/colors', colorsRoutes);
+app.use('/api/v1/inquiries', inquiriesRoutes);
 
 export default app;

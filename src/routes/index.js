@@ -10,3 +10,4 @@ export { default as uploadsRoutes } from './uploads.routes.js';
 export { default as ordersRoutes } from './orders.routes.js';
 export { default as cartsRoutes } from './carts.routes.js';
 export { default as colorsRoutes } from './colors.routes.js';
+export { default as inquiriesRoutes } from './inquiries.routes.js';
